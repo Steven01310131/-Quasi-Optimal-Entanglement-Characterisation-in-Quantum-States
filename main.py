@@ -1,4 +1,8 @@
 import numpy as np 
+import matplotlib.pyplot as plt
+from skopt.plots import plot_gaussian_process
+from skopt import gp_minimize
+from skopt.space import Real
 
 
 # Inner product function of the given state 'psi' and the product state 'phi'.
@@ -15,16 +19,23 @@ def tensor_product_function(matrix):
         phi=np.kron(phi, matrix[i])
     return phi
 
-def problem(num_qubits,psi_real_coef,psi_im_coef,phi_real_coef,phi_im_coef):
+def q2_problem(coefficients):
+    length = len(coefficients) // 4
+
+    # Divide the values into four lists
+    psi_real_coef = coefficients[:length]
+    psi_im_coef = coefficients[length:2*length]
+    phi_real_coef = coefficients[2*length:3*length]
+    phi_im_coef = coefficients[3*length:]
     psi_state =np.array([])
     for i,j in zip(psi_real_coef,psi_im_coef):
         psi_state=np.concatenate((psi_state, np.array([complex(i, j)])))
     magnitude = np.linalg.norm(psi_state)
     psi_state = psi_state/ magnitude
     # Initialize an empty matrix of size (number of qubits) x 2, where each row represents one qubit state, to store a separable (product) state 'phi'.
-    matrix = np.zeros((num_qubits, 2), dtype=complex)
+    matrix = np.zeros((2, 2), dtype=complex)
 
-    for i in range(num_qubits):
+    for i in range(2):
         for j in range(2):
             matrix[i, j] = complex(phi_real_coef[2*i+j], phi_im_coef[2*i+j])
         matrix[i]=matrix[i]/np.linalg.norm(matrix[i])  
@@ -32,9 +43,8 @@ def problem(num_qubits,psi_real_coef,psi_im_coef,phi_real_coef,phi_im_coef):
     iner_product=Inner_product_function(phi_state, psi_state)
     return iner_product
 
-num_qubits=2
-psi_real_coef=[1,2,3,1000]
-psi_im_coef=[1,20000,3,4]
-phi_real_coef=[1,2,3,4]
-phi_im_coef=[4,3,2,1]
-print(problem(num_qubits,psi_real_coef,psi_im_coef,phi_real_coef,phi_im_coef))
+space = [Real(-10.0, 10.0, name=f'x{i+1}') for i in range(16)] 
+result = gp_minimize(q2_problem, space,acq_func="PI", n_calls=10, random_state=42)
+print("Best parameters:", result.x)
+print("Maximum value found:", -result.fun)  # Negate the result to get the actual maximum value
+
