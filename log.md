@@ -5,3 +5,9 @@ Tasks performed this week:
 Next week tasks:
     Examined the data and the associated data generation function. Begin the initial steps for the report.
 
+Week 3 (Week 46 )
+
+Tasks performe this week :
+    Started implementing the problem using using the scikit optimize library  
+Next week tasks:
+    Further optimize the results we get by conducting experiments and crossreferencing them with analytical solutions
