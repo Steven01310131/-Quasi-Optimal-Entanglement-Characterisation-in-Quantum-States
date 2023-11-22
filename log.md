@@ -1,7 +1,31 @@
-Week 2 (week 45):
+Week 44: Initial Team Meeting and Repository Creation
 
-Tasks performed this week:
-    Conducted the review of the provided literature and explored the bayessian optimization library which is gonna be used
-Next week tasks:
-    Examined the data and the associated data generation function. Begin the initial steps for the report.
+- Held the initial team meeting to mark the beginning of the project.
+- Created a GitHub repository to manage code development and version control.
+- Joined a Slack channel to facilitate ongoing team communication and coordination.
+
+
+Week 45: Learning about Bayesian Methods and Group Talk
+
+- Spent time reading and learning about the Bayesian approach from the materials we got.
+- Had a group meeting on Zoom to talk about the paper and how it relates to our work.
+- Used our Slack channel to ask questions and talk more about the paper.
+
+
+Week 46: Deep Engagement with the 2-Qubit Problem and Collaborative Meetings
+
+- Began the week by receiving the 2-Qubit problem from Vahid, dedicating efforts to understanding its formulation and specifics.
+- Examined the provided example code to guide our approach to solving the 2-Qubit problem.
+- Initiated work on programming the 2-Qubit problem using the scikit-learn library.
+- Conducted three in-person meetings at Angstrom to collaboratively discuss our progress, share insights, and strategize on the programming challenges.
+
+
+Week 47: Addressing Technical Challenges and Integrating Sphere Point Distribution Code
+
+- Conducted a team meeting to discuss the difficulties faced in progressing with the 2-Qubit problem.
+- Identified specific technical challenges and reached out to our supervisor on Slack for expert guidance.
+- Scheduled an online meeting with the supervisor for the 21st on Zoom to seek advice and clarification.
+- Decided to integrate a new code component into our project. This code is designed to generate points evenly distributed across a sphere's surface, which is crucial for our work on the 2-Qubit problem.
+
+
 
