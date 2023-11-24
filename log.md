@@ -26,6 +26,8 @@ Week 47: Addressing Technical Challenges and Integrating Sphere Point Distributi
 - Identified specific technical challenges and reached out to our supervisor on Slack for expert guidance.
 - Scheduled an online meeting with the supervisor for the 21st on Zoom to seek advice and clarification.
 - Decided to integrate a new code component into our project. This code is designed to generate points evenly distributed across a sphere's surface, which is crucial for our work on the 2-Qubit problem.
+- Student meeting at 24/11/ where discussed our progress this week and share insights and how to tackle some problems regarding how to sample from a sphere instead of cartesian coordinates for the bayssian optimization problem.
+
 
 
 
