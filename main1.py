@@ -39,32 +39,46 @@ def main(l,N):
     for j in range(1, N-1):
         theta[j] = (theta[j-1] + 3.6/np.sqrt(N) * 1/np.sqrt(1 - h[j]**2)) % (2*np.pi)- np.pi
     theta[N-1] = 0
+    # The coefficients are a list of integers which points to a location of the
+    # phi and theta sample list of the polar and azimouthian cooridnates 
     def q2_problem(coefficients):
-        # Divide the values into four lists
+        # Divide the real part and imaginary part coefficients
         psi_real_coef = l[:4]
         psi_im_coef = l[4:2*4]
-        phi_1=phi[coefficients[0]]
-        theta_1=theta[coefficients[1]]
-        phi_2=phi[coefficients[2]]
-        theta_2=theta[coefficients[3]]
-        
+
+        #sample the polar and azimouthian coordinates from the theta and phi value list
+        phi_1=phi[int(coefficients[0])]
+        theta_1=theta[int(coefficients[1])]
+        phi_2=phi[int(coefficients[2])]
+        theta_2=theta[int(coefficients[3])]
+
         a_1 = cmath.cos(complex(0 , theta_1 / 2))
         a_2 = cmath.cos(complex(0 , theta_2 / 2))
         beta_1 = np.exp(complex(0 , phi_1)) *  cmath.sin(complex(0 , theta_1 / 2))
         beta_2 = np.exp(complex(0 , phi_2)) *  cmath.sin(complex(0 , theta_2 / 2))
         psi_state =np.array([])
+        
+        # Given vector phi
         for i,j in zip(psi_real_coef,psi_im_coef):
             psi_state=np.concatenate((psi_state, np.array([complex(i, j)])))
         magnitude = np.linalg.norm(psi_state)
         psi_state = psi_state/ magnitude
-        # Initialize an empty matrix of size (number of qubits) x 2, where each row represents one qubit state, to store a separable (product) state 'phi'.
-        inner_product = a_1 * a_2 *  
-        return -iner_product
 
-    space = [Integer(0, N, name=f'x{i+1}') for i in range(4)]
-    print(space)
+        inner_product = (np.conj(a_1 * a_2 )) * psi_state[0] + (np.conj(a_1 * beta_2 )) * psi_state[1] + (np.conj(beta_1 * a_2 )) * psi_state[2] + (np.conj(beta_1 * beta_2 )) * psi_state[3] 
+        #Return the negative becauce we want to maximize
+        return -np.abs(inner_product)
+    
+    #TODO fix the bug with the real since when I change the space from Real to int the program 
+    # fails since somewhere the library uses np.int which is deprecated
+    
+    space = [Real(0, N-1, name=f'x{i+1}') for i in range(4)]
     result = gp_minimize(q2_problem, space,acq_func="PI", n_calls=50, random_state=42)
-    print("Best parameters:", result.x)
-    print("Maximum value found:", -result.fun)  # Negate the result to get the actual maximum value
+    # The best parameters are the indexes which points to the best phi and theta 
+    print("Best parameters:")
+    print(f"Ph1:{phi[int(result.x[0])]}")
+    print(f"theta1:{theta[int(result.x[1])]}")
+    print(f"Ph2:{phi[int(result.x[2])]}")
+    print(f"theta2:{theta[int(result.x[3])]}")
+    print("Maximum value found:", -result.fun) # Negate the result to get the actual maximum value
 
 main([1,2,3,4,1,2,3,4],500)
