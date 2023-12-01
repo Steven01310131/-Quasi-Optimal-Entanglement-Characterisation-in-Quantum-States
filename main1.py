@@ -1,3 +1,5 @@
+
+#!/usr/bin/env python3
 import numpy as np 
 import matplotlib.pyplot as plt
 from skopt.plots import plot_gaussian_process
@@ -20,16 +22,23 @@ def tensor_product_function(matrix):
         phi=np.kron(phi, matrix[i])
     return phi
 
-def sph2cart(azimuth,elevation,r):
-    x = r * np.cos(elevation) * np.cos(azimuth)
-    y = r * np.cos(elevation) * np.sin(azimuth)
-    z = r * np.sin(elevation)
-    return x, y, z
+# def sph2cart(azimuth,elevation,r):
+#     x = r * np.cos(elevation) * np.cos(azimuth)
+#     y = r * np.cos(elevation) * np.sin(azimuth)
+#     z = r * np.sin(elevation)
+#     return x, y, z
+
+def sph2cart(theta_1,phi_1,phi_2,theta_2):
+    a_1 = cmath.cos(complex(0 , theta_1 / 2))
+    a_2 = cmath.cos(complex(0 , theta_2 / 2))
+    beta_1 = np.exp(complex(0 , phi_1)) *  cmath.sin(complex(0 , theta_1 / 2))
+    beta_2 = np.exp(complex(0 , phi_2)) *  cmath.sin(complex(0 , theta_2 / 2))
+    return a_1 , beta_1 , a_2 , beta_2
 
 #Main function
-# l is a list with the given coeffiicients of the given psi 
+# psi is a list with the given coeffiicients of the given psi 
 # N the discretization space 
-def main(l,N):
+def main(psi,N):
     k = np.arange(1, N+1)
     h = -1 + 2/(N-1) * (k-1)
     phi = np.arccos(h) - np.pi/2
@@ -43,8 +52,8 @@ def main(l,N):
     # phi and theta sample list of the polar and azimouthian cooridnates 
     def q2_problem(coefficients):
         # Divide the real part and imaginary part coefficients
-        psi_real_coef = l[:4]
-        psi_im_coef = l[4:2*4]
+        psi_real_coef = psi[:4]
+        psi_im_coef = psi[4:2*4]
 
         #sample the polar and azimouthian coordinates from the theta and phi value list
         phi_1=phi[int(coefficients[0])]
@@ -52,10 +61,9 @@ def main(l,N):
         phi_2=phi[int(coefficients[2])]
         theta_2=theta[int(coefficients[3])]
 
-        a_1 = cmath.cos(complex(0 , theta_1 / 2))
-        a_2 = cmath.cos(complex(0 , theta_2 / 2))
-        beta_1 = np.exp(complex(0 , phi_1)) *  cmath.sin(complex(0 , theta_1 / 2))
-        beta_2 = np.exp(complex(0 , phi_2)) *  cmath.sin(complex(0 , theta_2 / 2))
+        # find the alpha and beta from the polar coordinates 
+        a_1 , beta_1 , a_2 , beta_2 = sph2cart(theta_1,phi_1,phi_2,theta_2)
+
         psi_state =np.array([])
         
         # Given vector phi
@@ -72,7 +80,7 @@ def main(l,N):
     # fails since somewhere the library uses np.int which is deprecated
     
     space = [Real(0, N-1, name=f'x{i+1}') for i in range(4)]
-    result = gp_minimize(q2_problem, space,acq_func="PI", n_calls=50, random_state=42)
+    result = gp_minimize(q2_problem, space,acq_func="PI", n_calls=200,n_initial_points=50, random_state=42)
     # The best parameters are the indexes which points to the best phi and theta 
     print("Best parameters:")
     print(f"Ph1:{phi[int(result.x[0])]}")
@@ -80,5 +88,25 @@ def main(l,N):
     print(f"Ph2:{phi[int(result.x[2])]}")
     print(f"theta2:{theta[int(result.x[3])]}")
     print("Maximum value found:", -result.fun) # Negate the result to get the actual maximum value
+    a_1_list = []
+    a_2_list = []
+    beta_1_list = []
+    beta_2_list = []
+    for point in result.x_iters:
+        phi_1=phi[int(point[0])]
+        theta_1=theta[int(point[1])]
+        phi_2=phi[int(point[2])]
+        theta_2=theta[int(point[3])]
+        a_1 , beta_1 , a_2 , beta_2 = sph2cart(theta_1,phi_1,phi_2,theta_2)
+        a_1_list.append(a_1)
+        a_2_list.append(a_2)
+        beta_1_list.append(beta_1)
+        beta_2_list.append(beta_2)
+    plt.scatter(a_1_list, beta_1_list)
+    plt.scatter(a_2_list, beta_2_list)
+    plt.xlabel('Parameter x1')
+    plt.ylabel('Parameter x2')
+    plt.title('Sampled Points in Optimization Process (gp_minimize)')
+    plt.show()
 
-main([1,2,3,4,1,2,3,4],500)
+main([1,2,3,4,1,2,3,4],2000)

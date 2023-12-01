@@ -27,3 +27,9 @@ Week 47: Addressing Technical Challenges and Integrating Sphere Point Distributi
 - Scheduled an online meeting with the supervisor for the 21st on Zoom to seek advice and clarification.
 - Decided to integrate a new code component into our project. This code is designed to generate points evenly distributed across a sphere's surface, which is crucial for our work on the 2-Qubit problem.
 - Student meeting at 24/11/ where discussed our progress this week and share insights and how to tackle some problems regarding how to sample from a sphere instead of cartesian coordinates for the bayssian optimization problem.
+
+Week 48: Implementing and testing code using sampling from sphere 
+
+- Conducted a brif meeting between the students on Monday 27/11 where it was discussed how to implement the new code
+- Meeting of Thursday 30/11 discusing how to do the presentation for the following week 
+- During the week we worked mostly independently apart from Friday 1/11 where we had a meeting where we discussed our new implementation where it was discovered some of the results didnt adhere to some properties that needed to be followed (normalized to 1)
