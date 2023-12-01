@@ -31,5 +31,6 @@ Week 47: Addressing Technical Challenges and Integrating Sphere Point Distributi
 Week 48: Implementing and testing code using sampling from sphere 
 
 - Conducted a brif meeting between the students on Monday 27/11 where it was discussed how to implement the new code
-- Meeting of Thursday 30/11 discusing how to do the presentation for the following week 
-- During the week we worked mostly independently apart from Friday 1/11 where we had a meeting where we discussed our new implementation where it was discovered some of the results didnt adhere to some properties that needed to be followed (normalized to 1)
+- Meeting of Thursday 30/11 discusing how to do the presentation for the following week
+- During the week we worked mostly independently apart from Friday 1/11 where we had a meeting with the supervisors where wediscussed our new implementation where it was discovered some of the results didnt adhere to some properties that needed to be   followed (the results need to be normalized to 1)
+- Started a Google Colab notebook to enhance the efficiency of sharing project results and progress with supervisors
