@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from skopt import gp_minimize
 from skopt.space import Real
 import cmath
+import time
 
 
 # Inner product function of the given state 'psi' and the product state 'phi'.
@@ -44,6 +45,7 @@ def sph2cart(theta_1, phi_1, phi_2, theta_2):
 # param:    psi         List with the given coeffiicients of the given psi
 # paramL    N           The discretization space length
 def main(psi, N):
+    N = 2000
     k = np.arange(1, N + 1)
     h = -1 + 2 / (N - 1) * (k - 1)
     phi = np.arccos(h) - np.pi / 2
@@ -51,15 +53,14 @@ def main(psi, N):
     theta[0] = 0
 
     for j in range(1, N - 1):
-        theta[j] = (theta[j - 1] + 3.6 / np.sqrt(N) * 1 / np.sqrt(1 - h[j]**2)) % (2 * np.pi) - np.pi
+        theta[j] = (theta[j - 1] + 3.6 / np.sqrt(N) * 1 / np.sqrt(1 - h[j]**2)) % (2 * np.pi)
     theta[N - 1] = 0
 
     # Divide the real part and imaginary part coefficients
     psi_real_coef = psi[:4]
     psi_im_coef = psi[4: 2 * 4]
     psi_state = np.array([])
-
-    # Given vector phi
+    # Given vector psi
     for i, j in zip(psi_real_coef, psi_im_coef):
         psi_state = np.concatenate((psi_state, np.array([complex(i, j)])))
     magnitude = np.linalg.norm(psi_state)
@@ -77,10 +78,7 @@ def main(psi, N):
         # find the alpha and beta from the polar coordinates
         a_1, beta_1, a_2, beta_2 = sph2cart(theta_1, phi_1, phi_2, theta_2)
 
-        inner_product = (np.conj(a_1 * a_2)) * psi_state[0]
-        + (np.conj(a_1 * beta_2)) * psi_state[1]
-        + (np.conj(beta_1 * a_2)) * psi_state[2]
-        + (np.conj(beta_1 * beta_2)) * psi_state[3]
+        inner_product = (np.conj(a_1 * a_2)) * psi_state[0] + (np.conj(a_1 * beta_2)) * psi_state[1]+ (np.conj(beta_1 * a_2)) * psi_state[2] + (np.conj(beta_1 * beta_2)) * psi_state[3]
 
         # Return the negative becauce we want to maximize
         return -np.abs(inner_product)
@@ -90,8 +88,7 @@ def main(psi, N):
                          space,
                          acq_func="PI",
                          n_calls=100,
-                         n_initial_points=10,
-                         random_state=42)
+                         n_initial_points=10,)
 
     # The best parameters are the indexes which points to the best phi and theta
     print("Best parameters:")
@@ -125,4 +122,14 @@ def main(psi, N):
     plt.show()
 
 
+# Record the start time
+start_time = time.time()
+
 main([1, 2, 3, 4, 1, 2, 3, 4], 2000)
+
+end_time = time.time()
+
+# Calculate the elapsed time
+elapsed_time = end_time - start_time
+
+print(f"Elapsed time: {elapsed_time} seconds")
