@@ -56,15 +56,15 @@ def main(psi, N):
         theta[j] = (theta[j - 1] + 3.6 / np.sqrt(N) * 1 / np.sqrt(1 - h[j]**2)) % (2 * np.pi)
     theta[N - 1] = 0
 
-    # Divide the real part and imaginary part coefficients
-    psi_real_coef = psi[:4]
-    psi_im_coef = psi[4: 2 * 4]
-    psi_state = np.array([])
-    # Given vector psi
-    for i, j in zip(psi_real_coef, psi_im_coef):
-        psi_state = np.concatenate((psi_state, np.array([complex(i, j)])))
-    magnitude = np.linalg.norm(psi_state)
-    psi_state = psi_state / magnitude
+    # # Divide the real part and imaginary part coefficients
+    # psi_real_coef = psi[:4]
+    # psi_im_coef = psi[4: 2 * 4]
+    # psi_state = np.array([])
+    # # Given vector psi
+    # for i, j in zip(psi_real_coef, psi_im_coef):
+    #     psi_state = np.concatenate((psi_state, np.array([complex(i, j)])))
+    # magnitude = np.linalg.norm(psi_state)
+    # psi_state = psi_state / magnitude
 
     # The coefficients are a list of integers which points to a location of the
     # phi and theta sample list of the polar and azimouthian cooridnates
@@ -78,7 +78,7 @@ def main(psi, N):
         # find the alpha and beta from the polar coordinates
         a_1, beta_1, a_2, beta_2 = sph2cart(theta_1, phi_1, phi_2, theta_2)
 
-        inner_product = (np.conj(a_1 * a_2)) * psi_state[0] + (np.conj(a_1 * beta_2)) * psi_state[1]+ (np.conj(beta_1 * a_2)) * psi_state[2] + (np.conj(beta_1 * beta_2)) * psi_state[3]
+        inner_product = (np.conj(a_1 * a_2)) * psi[0] + (np.conj(a_1 * beta_2)) * psi[1]+ (np.conj(beta_1 * a_2)) * psi[2] + (np.conj(beta_1 * beta_2)) * psi[3]
 
         # Return the negative becauce we want to maximize
         return -np.abs(inner_product)
@@ -99,37 +99,36 @@ def main(psi, N):
 
     # Negate the result to get the actual maximum value
     print("Maximum value found:", -result.fun)
+    return -result.fun
+    # a_1_list = []
+    # a_2_list = []
+    # beta_1_list = []
+    # beta_2_list = []
+    # for point in result.x_iters:
+    #     phi_1 = phi[int(point[0])]
+    #     phi_2 = phi[int(point[2])]
+    #     theta_1 = theta[int(point[1])]
+    #     theta_2 = theta[int(point[3])]
+    #     a_1, beta_1, a_2, beta_2 = sph2cart(theta_1, phi_1, phi_2, theta_2)
+    #     a_1_list.append(a_1)
+    #     a_2_list.append(a_2)
+    #     beta_1_list.append(beta_1)
+    #     beta_2_list.append(beta_2)
+    # plt.scatter(a_1_list, beta_1_list)
+    # plt.scatter(a_2_list, beta_2_list)
+    # plt.xlabel('Parameter x1')
+    # plt.ylabel('Parameter x2')
+    # plt.title('Sampled Points in Optimization Process (gp_minimize)')
+    # plt.show()
 
-    a_1_list = []
-    a_2_list = []
-    beta_1_list = []
-    beta_2_list = []
-    for point in result.x_iters:
-        phi_1 = phi[int(point[0])]
-        phi_2 = phi[int(point[2])]
-        theta_1 = theta[int(point[1])]
-        theta_2 = theta[int(point[3])]
-        a_1, beta_1, a_2, beta_2 = sph2cart(theta_1, phi_1, phi_2, theta_2)
-        a_1_list.append(a_1)
-        a_2_list.append(a_2)
-        beta_1_list.append(beta_1)
-        beta_2_list.append(beta_2)
-    plt.scatter(a_1_list, beta_1_list)
-    plt.scatter(a_2_list, beta_2_list)
-    plt.xlabel('Parameter x1')
-    plt.ylabel('Parameter x2')
-    plt.title('Sampled Points in Optimization Process (gp_minimize)')
-    plt.show()
 
+# Discretize p into 10 intervals between 0 and 1
+discretized_p = np.linspace(0, 1, 10)
+print(discretized_p)
+# Create the vector [p, 0, 0, 1-p]
+vector_list = [[p, 0, 0, 1 - p] for p in discretized_p]
+result_vector = [discretized_p, 0, 0, 1 - discretized_p]
 
-# Record the start time
-start_time = time.time()
-
-main([1, 2, 3, 4, 1, 2, 3, 4], 2000)
-
-end_time = time.time()
-
-# Calculate the elapsed time
-elapsed_time = end_time - start_time
-
-print(f"Elapsed time: {elapsed_time} seconds")
+results = []
+for input in result_vector:
+    results.append(main(input, 2000))
