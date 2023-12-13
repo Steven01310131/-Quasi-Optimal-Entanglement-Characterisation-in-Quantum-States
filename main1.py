@@ -2,12 +2,11 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-# from skopt.plots import plot_gaussian_process
 from skopt import gp_minimize
 from skopt.space import Real
 import cmath
 import time
-
+import json
 
 # Inner product function of the given state 'psi' and the product state 'phi'.
 def Inner_product_function(phi, psi):
@@ -26,12 +25,6 @@ def tensor_product_function(matrix):
         phi = np.kron(phi, matrix[i])
     return phi
 
-# def sph2cart(azimuth,elevation,r):
-#     x = r * np.cos(elevation) * np.cos(azimuth)
-#     y = r * np.cos(elevation) * np.sin(azimuth)
-#     z = r * np.sin(elevation)
-#     return x, y, z
-
 
 def sph2cart(theta_1, phi_1, phi_2, theta_2):
     a_1 = cmath.cos(complex(theta_1 / 2, 0))
@@ -41,10 +34,10 @@ def sph2cart(theta_1, phi_1, phi_2, theta_2):
     return a_1, beta_1, a_2, beta_2
 
 
-# Main function
+# Function which produces the result of the gp_minimize with given initial state
 # param:    psi         List with the given coeffiicients of the given psi
 # paramL    N           The discretization space length
-def main(psi, N):
+def function_max(psi, N):
     N = 2000
     k = np.arange(1, N + 1)
     h = -1 + 2 / (N - 1) * (k - 1)
@@ -65,7 +58,9 @@ def main(psi, N):
     #     psi_state = np.concatenate((psi_state, np.array([complex(i, j)])))
     # magnitude = np.linalg.norm(psi_state)
     # psi_state = psi_state / magnitude
+    ################################################
 
+    # Function which solves the problem for two positions in the spherical space
     # The coefficients are a list of integers which points to a location of the
     # phi and theta sample list of the polar and azimouthian cooridnates
     def q2_problem(coefficients):
@@ -88,18 +83,18 @@ def main(psi, N):
                          space,
                          acq_func="PI",
                          n_calls=100,
-                         n_initial_points=10,)
+                         n_initial_points=20)
+    return -result.fun
 
     # The best parameters are the indexes which points to the best phi and theta
-    print("Best parameters:")
-    print(f"Ph1:{phi[int(result.x[0])]}")
-    print(f"theta1:{theta[int(result.x[1])]}")
-    print(f"Ph2:{phi[int(result.x[2])]}")
-    print(f"theta2:{theta[int(result.x[3])]}")
+    # print("Best parameters:")
+    # print(f"Ph1:{phi[int(result.x[0])]}")
+    # print(f"theta1:{theta[int(result.x[1])]}")
+    # print(f"Ph2:{phi[int(result.x[2])]}")
+    # print(f"theta2:{theta[int(result.x[3])]}")
 
     # Negate the result to get the actual maximum value
-    print("Maximum value found:", -result.fun)
-    return -result.fun
+    # print("Maximum value found:", -result.fun)
     # a_1_list = []
     # a_2_list = []
     # beta_1_list = []
@@ -122,13 +117,35 @@ def main(psi, N):
     # plt.show()
 
 
-# Discretize p into 10 intervals between 0 and 1
-discretized_p = np.linspace(0, 1, 10)
-print(discretized_p)
-# Create the vector [p, 0, 0, 1-p]
-vector_list = [[p, 0, 0, 1 - p] for p in discretized_p]
-result_vector = [discretized_p, 0, 0, 1 - discretized_p]
+def main():
+    # Discretize p into 10 intervals between 0 and 1
+    discretized_p = np.linspace(0, 1, 10)
 
-results = []
-for input in result_vector:
-    results.append(main(input, 2000))
+    # Create the vector [p, 0, 0, 1-p]
+    vector_list = [[p, 0, 0, 1 - p] for p in discretized_p]
+
+    results = []
+    for input in vector_list:
+        results.append(function_max(input, 2000))
+    return results
+
+
+if __name__ == '__main__':
+    start_time1 = time.time()
+    results = main()
+    file_path = 'output_qe.json'
+
+    # Open the JSON file in write mode
+    with open(file_path, 'w') as file:
+        # Use json.dump() to write the list to the file
+        json.dump(results, file)
+
+    end_time1 = time.time()
+    elapsed_time = end_time1 - start_time1
+    print(f"Elapsed time: {elapsed_time} seconds")
+    file_path1 = 'time_req.json'
+
+    # Open the JSON file in write mode
+    with open(file_path1, 'w') as file1:
+        # Use json.dump() to write the list to the file
+        json.dump([elapsed_time], file1)

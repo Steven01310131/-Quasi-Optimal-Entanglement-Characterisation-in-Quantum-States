@@ -2,12 +2,13 @@
 
 import numpy as np
 # from skopt.plots import plot_gaussian_process
-from skopt import Optimizer
+from skopt import gp_minimize
 from skopt.space import Real
 import cmath
 import time
-from joblib import Parallel, delayed
-
+from dask import delayed
+import dask
+import json
 
 # Inner product function of the given state 'psi' and the product state 'phi'.
 def Inner_product_function(phi, psi):
@@ -26,11 +27,6 @@ def tensor_product_function(matrix):
         phi = np.kron(phi, matrix[i])
     return phi
 
-# def sph2cart(azimuth,elevation,r):
-#     x = r * np.cos(elevation) * np.cos(azimuth)
-#     y = r * np.cos(elevation) * np.sin(azimuth)
-#     z = r * np.sin(elevation)
-#     return x, y, z
 
 
 def sph2cart(theta_1, phi_1, phi_2, theta_2):
@@ -41,10 +37,9 @@ def sph2cart(theta_1, phi_1, phi_2, theta_2):
     return a_1, beta_1, a_2, beta_2
 
 
-# Main function
+# Function which produces the result of the gp_minimize with given initial state
 # param:    psi         List with the given coeffiicients of the given psi
-# paramL    N           The discretization space length
-def main(psi, N):
+def function_max(psi):
     N = 2000
     k = np.arange(1, N + 1)
     h = -1 + 2 / (N - 1) * (k - 1)
@@ -56,16 +51,18 @@ def main(psi, N):
         theta[j] = (theta[j - 1] + 3.6 / np.sqrt(N) * 1 / np.sqrt(1 - h[j]**2)) % (2 * np.pi)
     theta[N - 1] = 0
 
-    # Divide the real part and imaginary part coefficients
-    psi_real_coef = psi[:4]
-    psi_im_coef = psi[4: 2 * 4]
-    psi_state = np.array([])
-    # Given vector psi
-    for i, j in zip(psi_real_coef, psi_im_coef):
-        psi_state = np.concatenate((psi_state, np.array([complex(i, j)])))
-    magnitude = np.linalg.norm(psi_state)
-    psi_state = psi_state / magnitude
+    # # Divide the real part and imaginary part coefficients
+    # psi_real_coef = psi[:4]
+    # psi_im_coef = psi[4: 2 * 4]
+    # psi_state = np.array([])
+    # # Given vector psi
+    # for i, j in zip(psi_real_coef, psi_im_coef):
+    #     psi_state = np.concatenate((psi_state, np.array([complex(i, j)])))
+    # magnitude = np.linalg.norm(psi_state)
+    # psi_state = psi_state / magnitude
+    ################################################
 
+    # Function which solves the problem for two positions in the spherical space
     # The coefficients are a list of integers which points to a location of the
     # phi and theta sample list of the polar and azimouthian cooridnates
     def q2_problem(coefficients):
@@ -77,57 +74,80 @@ def main(psi, N):
 
         # find the alpha and beta from the polar coordinates
         a_1, beta_1, a_2, beta_2 = sph2cart(theta_1, phi_1, phi_2, theta_2)
-        inner_product = (np.conj(a_1 * a_2)) * psi_state[0] + (np.conj(a_1 * beta_2)) * psi_state[1] + (np.conj(beta_1 * a_2)) * psi_state[2] + (np.conj(beta_1 * beta_2)) * psi_state[3]
+
+        inner_product = (np.conj(a_1 * a_2)) * psi[0] + (np.conj(a_1 * beta_2)) * psi[1]+ (np.conj(beta_1 * a_2)) * psi[2] + (np.conj(beta_1 * beta_2)) * psi[3]
 
         # Return the negative becauce we want to maximize
-        return np.abs(inner_product)
+        return -np.abs(inner_product)
 
     space = [Real(0, N - 1, name=f'x{i+1}') for i in range(4)]
+    result = gp_minimize(q2_problem,
+                         space,
+                         acq_func="PI",
+                         n_calls=30,
+                         n_initial_points=1,)
+    return -result.fun
 
-    # Parelilized version
-    optimizer = Optimizer(dimensions=space,
-                          base_estimator='gp',
-                          acq_func="PI",
-                          n_initial_points=10,
-                          random_state=42)
-    # start_time = time.time()
-    # for _ in range(100):
-    #     start_time = time.time()
-    #     x_next = optimizer.ask()
-    #     y_next = q2_problem(x_next)
-    #     optimizer.tell(x_next, y_next)
-    #     end_time = time.time()
-    #     elapsed_time = end_time - start_time
-    #     print(f"Elapsed time: {elapsed_time} seconds")
-    # best_objective = max(optimizer.yi)
-    # end_time = time.time()
-    # # Calculate the elapsed time
-    # elapsed_time = end_time - start_time
-    # print(f"Elapsed time: {elapsed_time} seconds")
-    # print(len(optimizer.yi))
-    # print(best_objective)
+    # The best parameters are the indexes which points to the best phi and theta
+    # print("Best parameters:")
+    # print(f"Ph1:{phi[int(result.x[0])]}")
+    # print(f"theta1:{theta[int(result.x[1])]}")
+    # print(f"Ph2:{phi[int(result.x[2])]}")
+    # print(f"theta2:{theta[int(result.x[3])]}")
 
-    # Unparalleled version
-    optimizer = Optimizer(space,
-                          base_estimator='gp',
-                          acq_func="PI",
-                          n_initial_points=10,
-                          random_state=42)
-    for _ in range(100):
-        start_time = time.time()
-        x_next = optimizer.ask(n_points=3)
-        y_next = Parallel(n_jobs=3)(delayed(q2_problem)(v) for v in x_next)
-        optimizer.tell(x_next, y_next)
-        end_time = time.time()
-        elapsed_time = end_time - start_time
-        print(f"Elapsed time: {elapsed_time} seconds")
-    best_objective = max(optimizer.yi)
-    print(best_objective)
+    # Negate the result to get the actual maximum value
+    # print("Maximum value found:", -result.fun)
+    # a_1_list = []
+    # a_2_list = []
+    # beta_1_list = []
+    # beta_2_list = []
+    # for point in result.x_iters:
+    #     phi_1 = phi[int(point[0])]
+    #     phi_2 = phi[int(point[2])]
+    #     theta_1 = theta[int(point[1])]
+    #     theta_2 = theta[int(point[3])]
+    #     a_1, beta_1, a_2, beta_2 = sph2cart(theta_1, phi_1, phi_2, theta_2)
+    #     a_1_list.append(a_1)
+    #     a_2_list.append(a_2)
+    #     beta_1_list.append(beta_1)
+    #     beta_2_list.append(beta_2)
+    # plt.scatter(a_1_list, beta_1_list)
+    # plt.scatter(a_2_list, beta_2_list)
+    # plt.xlabel('Parameter x1')
+    # plt.ylabel('Parameter x2')
+    # plt.title('Sampled Points in Optimization Process (gp_minimize)')
+    # plt.show()
 
 
-# Record the start time
+def main():
+    # Discretize p into 10 intervals between 0 and 1
+    discretized_p = np.linspace(0, 1, 10)
+
+    # Create the vector [p, 0, 0, 1-p]
+    vector_list = [[np.sqrt(p), 0, 0, np.sqrt(1 - p)] for p in discretized_p]
+
+    delayed_results = [function_max(value) for value in vector_list]
+    # Compute the results using dask.compute
+    computed_results = dask.compute(*delayed_results)
+    return computed_results
 
 
-main([1, 2, 3, 4, 1, 2, 3, 4], 2000)
+if __name__ == '__main__':
+    start_time1 = time.time()
+    results = main()
+    file_path = 'output_qe.json'
 
+    # Open the JSON file in write mode
+    with open(file_path, 'w') as file:
+        # Use json.dump() to write the list to the file
+        json.dump(results, file)
 
+    end_time1 = time.time()
+    elapsed_time = end_time1 - start_time1
+    print(f"Elapsed time: {elapsed_time} seconds")
+    file_path1 = 'time_req.json'
+
+    # Open the JSON file in write mode
+    with open(file_path1, 'w') as file1:
+        # Use json.dump() to write the list to the file
+        json.dump([elapsed_time], file1)
