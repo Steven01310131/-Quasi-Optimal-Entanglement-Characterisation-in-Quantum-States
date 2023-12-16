@@ -39,6 +39,7 @@ def sph2cart(theta_1, phi_1, phi_2, theta_2):
 
 # Function which produces the result of the gp_minimize with given initial state
 # param:    psi         List with the given coeffiicients of the given psi
+@delayed
 def function_max(psi):
     N = 2000
     k = np.arange(1, N + 1)
@@ -85,7 +86,7 @@ def function_max(psi):
                          space,
                          acq_func="PI",
                          n_calls=30,
-                         n_initial_points=1,)
+                         n_initial_points=1)
     return -result.fun
 
     # The best parameters are the indexes which points to the best phi and theta

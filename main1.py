@@ -82,8 +82,8 @@ def function_max(psi, N):
     result = gp_minimize(q2_problem,
                          space,
                          acq_func="PI",
-                         n_calls=100,
-                         n_initial_points=20)
+                         n_calls=30,
+                         n_initial_points=1)
     return -result.fun
 
     # The best parameters are the indexes which points to the best phi and theta
