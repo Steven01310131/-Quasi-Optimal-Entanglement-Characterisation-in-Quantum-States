@@ -35,10 +35,15 @@ Week 48: Implementing and testing code using sampling from sphere
 - During the week we worked mostly independently apart from Friday 1/11 where we had a meeting with the supervisors where wediscussed our new implementation where it was discovered some of the results didnt adhere to some properties that needed to be   followed (the results need to be normalized to 1)
 - Started a Google Colab notebook to enhance the efficiency of sharing project results and progress with supervisors
 
-Week 48: Working on the report and going through the code with the supervisors
+Week 49: Working on the report and going through the code with the supervisors
 
 - Conducted a quick meeting between the students on Monday 4/12 where we prepared for the upcoming presentation
 - Meeting with one of the supervisors(Tuesday 5/12) where we discussed a bit of the mathematical backround and the next steps in the project
 - We worked the rest of the week mostly on the report to get a skeletal draft ready for feedback by the supervisors
 - Another meeting on the Thursday 7/12 with the supervisors where we got some feedback on the current code and discussed the strategy and tools for the next part of the project
 
+Week 50: Run final tests
+
+- Finalized the code and run full scale test to reproduce the expected theoretical behaviour
+- Meeting 12/12 where we divided work regarding the poster and final parts that need to be added to the report
+- Expectations for next week to have a first draft of the final report
