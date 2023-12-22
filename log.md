@@ -30,20 +30,25 @@ Week 47: Addressing Technical Challenges and Integrating Sphere Point Distributi
 
 Week 48: Implementing and testing code using sampling from sphere
 
-- Conducted a brif meeting between the students on Monday 27/11 where it was discussed how to implement the new code
+- Conducted a brief meeting between the students on Monday 27/11 where it was discussed how to implement the new code
 - Meeting of Thursday 30/11 discusing how to do the presentation for the following week
-- During the week we worked mostly independently apart from Friday 1/11 where we had a meeting with the supervisors where wediscussed our new implementation where it was discovered some of the results didnt adhere to some properties that needed to be   followed (the results need to be normalized to 1)
+- Throughout the week, our work was predominantly independent apart from Friday 1/11 where we had a meeting with the supervisors where we discussed our new implementation where it was discovered some of the results deviated from the required properties, specifically the need for normalization to 1.
 - Started a Google Colab notebook to enhance the efficiency of sharing project results and progress with supervisors
 
 Week 49: Working on the report and going through the code with the supervisors
 
 - Conducted a quick meeting between the students on Monday 4/12 where we prepared for the upcoming presentation
-- Meeting with one of the supervisors(Tuesday 5/12) where we discussed a bit of the mathematical backround and the next steps in the project
+- Meeting with one of the supervisors(Tuesday 5/12) where we discussed a bit of the mathematical backround and the next steps in the project which mostly included how to implement in code how to create a family of pure states(PSI).
 - We worked the rest of the week mostly on the report to get a skeletal draft ready for feedback by the supervisors
 - Another meeting on the Thursday 7/12 with the supervisors where we got some feedback on the current code and discussed the strategy and tools for the next part of the project
 
 Week 50: Run final tests
 
-- Finalized the code and run full scale test to reproduce the expected theoretical behaviour
+- Finalized the code and run full scale test to reproduce the expected theoretical behaviour for the family of Psi
 - Meeting 12/12 where we divided work regarding the poster and final parts that need to be added to the report
 - Expectations for next week to have a first draft of the final report
+
+Week 51: Finalasation of the report
+
+- This week, our team primarily focused on individual tasks related to the report, and we successfully submitted the completed report to our supervisors on Wednesday.
+- On Monday, December 18th, we held a brief meeting to discuss the poster.
